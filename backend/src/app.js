@@ -8,8 +8,8 @@ app.use(express.json());
 // app.get("/api/test",(req,res)=>{
 //     res.json({message: "Backend + MongoDB connected"});
 // });
-const testRoute = require("./routes/test.route");
-app.use("/api", testRoute);
+const authRoute = require("./routes/auth.route");
+app.use("/api/auth", authRoute);
 
 
 module.exports = app;
