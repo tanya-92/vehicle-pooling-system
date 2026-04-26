@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../../../context/AuthContext";
 import api from "../../../lib/axios";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { ArrowLeft, UserPlus, ShieldPlus, Loader2 } from "lucide-react";
 
 export default function Settings() {
@@ -21,8 +22,8 @@ export default function Settings() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="min-h-screen w-full px-4 md:px-8 lg:px-12 py-8 bg-gradient-to-br from-blue-100 via-purple-100 to-cyan-100">
+        <div className="h-56 rounded-2xl bg-white/40 border border-white/50 animate-pulse" />
       </div>
     );
   }
@@ -47,9 +48,14 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="min-h-screen w-full bg-gradient-to-br from-blue-100 via-purple-100 to-cyan-100 flex flex-col"
+    >
+      <nav className="w-full sticky top-0 z-40 bg-white/30 backdrop-blur-md shadow-sm border-b border-white/40">
+        <div className="w-full px-4 md:px-8 lg:px-12">
           <div className="flex items-center h-16">
             <Link href="/dashboard" className="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-medium transition-colors">
               <ArrowLeft className="w-5 h-5" />
@@ -59,7 +65,7 @@ export default function Settings() {
         </div>
       </nav>
 
-      <main className="flex-1 max-w-3xl w-full mx-auto p-4 sm:p-6 lg:p-8 mt-6">
+      <main className="flex-1 w-full px-4 md:px-8 lg:px-12 py-6 md:py-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Account Settings</h1>
         
         {error && (
@@ -75,7 +81,7 @@ export default function Settings() {
           </div>
         )}
 
-        <div className="bg-white rounded-2xl shadow-sm border p-6 sm:p-8">
+        <div className="bg-white/20 backdrop-blur-lg rounded-2xl shadow-lg border border-white/30 p-6 sm:p-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-4">Manage Roles</h2>
           
           <div className="space-y-6">
@@ -101,19 +107,21 @@ export default function Settings() {
                 <p className="text-sm text-gray-500 mb-4">
                   Add the missing <strong>{missingRole}</strong> role to your account to unlock new capabilities.
                 </p>
-                <button
+                <motion.button
                   onClick={handleAddRole}
                   disabled={addingRole}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors inline-flex items-center gap-2"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium py-2 px-6 rounded-xl transition-all duration-300 inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-2xl"
                 >
                   {addingRole ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                   Add {missingRole} Role
-                </button>
+                </motion.button>
               </div>
             )}
           </div>
         </div>
       </main>
-    </div>
+    </motion.div>
   );
 }

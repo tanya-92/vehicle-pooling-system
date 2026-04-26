@@ -3,24 +3,27 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../../context/AuthContext";
 import api from "../../../lib/axios";
+import { motion } from "framer-motion";
 import { ShieldCheck, Loader2 } from "lucide-react";
 
 export default function VerifyOTP() {
   const router = useRouter();
   const { login } = useAuth();
   const [otp, setOtp] = useState("");
-  const [email, setEmail] = useState("");
+  const [email] = useState(() => {
+    if (typeof window === "undefined") {
+      return "";
+    }
+    return localStorage.getItem("otpEmail") || "";
+  });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const savedEmail = localStorage.getItem("otpEmail");
-    if (savedEmail) {
-      setEmail(savedEmail);
-    } else {
+    if (!email) {
       router.push("/register");
     }
-  }, [router]);
+  }, [email, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,8 +49,13 @@ export default function VerifyOTP() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="min-h-screen w-full flex items-center justify-center px-4 md:px-8 lg:px-12 py-8 bg-gradient-to-br from-blue-100 via-purple-100 to-cyan-100"
+    >
+      <div className="w-full md:w-2/3 lg:w-1/2 xl:w-2/5 bg-white/20 backdrop-blur-lg rounded-2xl shadow-xl border border-white/30 overflow-hidden">
         <div className="bg-blue-600 p-6 text-center text-white">
           <ShieldCheck className="w-12 h-12 mx-auto mb-2" />
           <h2 className="text-2xl font-bold">Verify Your Email</h2>
@@ -72,21 +80,23 @@ export default function VerifyOTP() {
                 maxLength={6}
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                className="w-full px-4 py-3 text-center text-2xl tracking-[0.5em] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 text-center text-2xl tracking-[0.5em] border border-white/50 rounded-xl focus:ring-2 focus:ring-blue-400 transition-colors bg-white/70"
                 placeholder="000000"
               />
             </div>
 
-            <button
+            <motion.button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center mt-6"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium py-3 rounded-xl transition-all duration-300 flex items-center justify-center mt-6 shadow-lg hover:shadow-2xl"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify OTP"}
-            </button>
+            </motion.button>
           </form>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

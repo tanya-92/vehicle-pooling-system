@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "../../../lib/axios";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { CarFront, Loader2 } from "lucide-react";
 
 export default function Register() {
@@ -53,8 +54,13 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="min-h-screen w-full flex items-center justify-center px-4 md:px-8 lg:px-12 py-8 bg-gradient-to-br from-blue-100 via-purple-100 to-cyan-100"
+    >
+      <div className="w-full md:w-2/3 lg:w-1/2 xl:w-2/5 bg-white/20 backdrop-blur-lg rounded-2xl shadow-xl border border-white/30 overflow-hidden">
         <div className="bg-blue-600 p-6 text-center text-white">
           <CarFront className="w-12 h-12 mx-auto mb-2" />
           <h2 className="text-2xl font-bold">Create an Account</h2>
@@ -78,7 +84,7 @@ export default function Register() {
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 border border-white/50 rounded-xl focus:ring-2 focus:ring-blue-400 transition-colors bg-white/70"
                 placeholder="John Doe"
               />
             </div>
@@ -94,7 +100,7 @@ export default function Register() {
                 title="Only @lpu.in email addresses are allowed"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 border border-white/50 rounded-xl focus:ring-2 focus:ring-blue-400 transition-colors bg-white/70"
                 placeholder="john.doe@lpu.in"
               />
             </div>
@@ -109,7 +115,7 @@ export default function Register() {
                 minLength={6}
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 border border-white/50 rounded-xl focus:ring-2 focus:ring-blue-400 transition-colors bg-white/70"
                 placeholder="••••••••"
               />
             </div>
@@ -118,8 +124,8 @@ export default function Register() {
               <label className="block text-sm font-medium text-gray-700 mb-2 mt-4">
                 Select Your Roles
               </label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 cursor-pointer p-3 border rounded-lg flex-1 hover:bg-gray-50 transition-colors">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label className="flex items-center gap-2 cursor-pointer p-3 border border-white/50 rounded-xl flex-1 hover:bg-white/60 transition-colors bg-white/50">
                   <input
                     type="checkbox"
                     className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
@@ -128,7 +134,7 @@ export default function Register() {
                   />
                   <span className="text-gray-700 font-medium">Driver</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer p-3 border rounded-lg flex-1 hover:bg-gray-50 transition-colors">
+                <label className="flex items-center gap-2 cursor-pointer p-3 border border-white/50 rounded-xl flex-1 hover:bg-white/60 transition-colors bg-white/50">
                   <input
                     type="checkbox"
                     className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
@@ -140,13 +146,15 @@ export default function Register() {
               </div>
             </div>
 
-            <button
+            <motion.button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center mt-6"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium py-3 rounded-xl transition-all duration-300 flex items-center justify-center mt-6 shadow-lg hover:shadow-2xl"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign Up"}
-            </button>
+            </motion.button>
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-600">
@@ -157,6 +165,6 @@ export default function Register() {
           </p>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
