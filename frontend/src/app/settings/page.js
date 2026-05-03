@@ -22,8 +22,10 @@ export default function Settings() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen w-full px-4 md:px-8 lg:px-12 py-8 bg-gradient-to-br from-blue-100 via-purple-100 to-cyan-100">
-        <div className="h-56 rounded-2xl bg-white/40 border border-white/50 animate-pulse" />
+      <div className="min-h-screen w-full px-4 sm:px-6 md:px-10 py-8 flex items-center justify-center" style={{ backgroundColor: "#F5F5DC" }}>
+        <div className="animate-spin" style={{ color: "#556B2F" }}>
+          <ShieldPlus className="w-8 h-8" />
+        </div>
       </div>
     );
   }
@@ -52,44 +54,45 @@ export default function Settings() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="min-h-screen w-full bg-gradient-to-br from-blue-100 via-purple-100 to-cyan-100 flex flex-col"
+      className="min-h-screen w-full flex flex-col"
+      style={{ backgroundColor: "#F5F5DC" }}
     >
-      <nav className="w-full sticky top-0 z-40 bg-white/30 backdrop-blur-md shadow-sm border-b border-white/40">
-        <div className="w-full px-4 md:px-8 lg:px-12">
+      <nav className="w-full sticky top-0 z-40 shadow-sm border-b" style={{ backgroundColor: "#FAF9F6", borderColor: "#E5E5DC" }}>
+        <div className="w-full px-4 sm:px-6 md:px-10">
           <div className="flex items-center h-16">
-            <Link href="/dashboard" className="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-medium transition-colors">
+            <Link href="/dashboard" className="flex items-center gap-2 font-medium transition-colors" style={{ color: "#556B2F" }}>
               <ArrowLeft className="w-5 h-5" />
-              Back to Dashboard
+              Back
             </Link>
           </div>
         </div>
       </nav>
 
-      <main className="flex-1 w-full px-4 md:px-8 lg:px-12 py-6 md:py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Account Settings</h1>
-        
+      <main className="flex-1 w-full px-4 sm:px-6 md:px-10 py-6 md:py-8">
+        <h1 className="text-2xl font-bold mb-6" style={{ color: "#2E2E2E" }}>Settings</h1>
+
         {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 shadow-sm border border-red-100">
+          <div className="p-4 rounded-lg mb-6 border" style={{ backgroundColor: "#FFE5E5", color: "#CC0000", borderColor: "#FFD5D5" }}>
             {error}
           </div>
         )}
 
         {message && (
-          <div className="bg-emerald-50 text-emerald-600 p-4 rounded-lg mb-6 shadow-sm border border-emerald-100 flex items-center gap-2">
-            <ShieldPlus className="w-5 h-5" />
+          <div className="p-4 rounded-lg mb-6 border flex items-center gap-2" style={{ backgroundColor: "#E5FFE5", color: "#006600", borderColor: "#D5FFD5" }}>
+            <ShieldPlus className="w-5 h-5 flex-shrink-0" />
             {message}
           </div>
         )}
 
-        <div className="bg-white/20 backdrop-blur-lg rounded-2xl shadow-lg border border-white/30 p-6 sm:p-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-4">Manage Roles</h2>
-          
+        <div className="p-6 rounded-xl shadow-sm border" style={{ backgroundColor: "#FAF9F6", borderColor: "#E5E5DC" }}>
+          <h2 className="font-semibold mb-4" style={{ color: "#2E2E2E" }}>Manage Roles</h2>
+
           <div className="space-y-6">
             <div>
-              <p className="text-sm font-medium text-gray-500 mb-2">Current Associated Roles</p>
+              <p className="text-sm font-medium mb-2" style={{ color: "#666666" }}>Current Roles</p>
               <div className="flex flex-wrap gap-2">
                 {user.roles.map(role => (
-                  <span key={role} className="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-100 text-sm font-medium rounded-full capitalize">
+                  <span key={role} className="px-3 py-1 text-sm font-medium rounded-full capitalize" style={{ backgroundColor: "#F0F0E8", color: "#2E2E2E", border: "1px solid #E5E5DC" }}>
                     {role}
                   </span>
                 ))}
@@ -97,22 +100,23 @@ export default function Settings() {
             </div>
 
             {hasBothRoles ? (
-              <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 text-sm text-gray-600 text-center">
-                You have associated both <strong>Driver</strong> and <strong>Passenger</strong> roles with your account. You can switch between them from the dashboard.
+              <div className="p-4 rounded-lg text-sm text-center" style={{ backgroundColor: "#F0F0E8", color: "#2E2E2E" }}>
+                You have both <strong>Driver</strong> and <strong>Passenger</strong> roles. Switch between them from the dashboard.
               </div>
             ) : (
-              <div className="bg-blue-50/50 p-5 rounded-xl border border-blue-100 mt-4 text-center">
-                <UserPlus className="w-10 h-10 text-blue-500 mx-auto mb-3" />
-                <h3 className="text-gray-900 font-medium mb-1">Expand Your Options</h3>
-                <p className="text-sm text-gray-500 mb-4">
-                  Add the missing <strong>{missingRole}</strong> role to your account to unlock new capabilities.
+              <div className="p-6 rounded-lg text-center border" style={{ backgroundColor: "#FAF9F6", borderColor: "#E5E5DC" }}>
+                <UserPlus className="w-10 h-10 mx-auto mb-3" style={{ color: "#556B2F" }} />
+                <h3 className="font-medium mb-2" style={{ color: "#2E2E2E" }}>Add {missingRole} Role</h3>
+                <p className="text-sm mb-4" style={{ color: "#666666" }}>
+                  Unlock new capabilities by adding the {missingRole} role.
                 </p>
                 <motion.button
                   onClick={handleAddRole}
                   disabled={addingRole}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium py-2 px-6 rounded-xl transition-all duration-300 inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-2xl"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full sm:w-auto px-6 py-2 rounded-lg font-medium text-white transition-colors inline-flex items-center justify-center gap-2"
+                  style={{ backgroundColor: "#556B2F" }}
                 >
                   {addingRole ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                   Add {missingRole} Role

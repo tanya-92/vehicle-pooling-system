@@ -26,105 +26,87 @@ export default function MyRides() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
-        <div className="h-64 rounded-2xl bg-white/40 border border-white/50" />
-        <div className="h-64 rounded-2xl bg-white/40 border border-white/50" />
-        <div className="h-64 rounded-2xl bg-white/40 border border-white/50" />
+      <div className="flex items-center justify-center min-h-screen" style={{ color: "#556B2F" }}>
+        <div className="animate-spin">
+          <MapPin className="w-8 h-8" />
+        </div>
       </div>
     );
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="w-full min-h-screen">
-      <div className="flex justify-between items-end mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">My Rides</h1>
-          <p className="text-gray-500 mt-2">Manage all the rides you have published.</p>
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="w-full space-y-6">
+      <div className="flex justify-between items-start gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold" style={{ color: "#2E2E2E" }}>My Rides</h1>
+          <p style={{ color: "#666666" }}>Manage your published rides.</p>
         </div>
-        <Link 
+        <Link
           href="/driver/create-ride"
-          className="hidden md:inline-flex bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-2xl"
+          className="hidden sm:inline-block px-4 py-2 rounded-lg font-medium text-white transition-colors"
+          style={{ backgroundColor: "#556B2F" }}
+          onMouseEnter={(e) => e.target.style.opacity = "0.9"}
+          onMouseLeave={(e) => e.target.style.opacity = "1"}
         >
-          Create New Ride
+          + Create
         </Link>
       </div>
 
       {error && (
-        <div className="mb-6 bg-red-50 text-red-700 p-4 rounded-xl border border-red-100">
+        <div className="p-4 rounded-lg border" style={{ backgroundColor: "#FFE5E5", color: "#CC0000", borderColor: "#FFD5D5" }}>
           {error}
         </div>
       )}
 
       {rides.length === 0 && !error ? (
-        <div className="bg-white/20 backdrop-blur-lg border border-dashed border-white/40 rounded-2xl p-12 text-center">
-          <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-1">No rides found</h3>
-          <p className="text-gray-500 mb-6">You haven&apos;t created any rides yet.</p>
-          <Link 
+        <div className="p-12 text-center rounded-xl border" style={{ backgroundColor: "#FAF9F6", borderColor: "#E5E5DC" }}>
+          <MapPin className="w-10 h-10 mx-auto mb-3" style={{ color: "#C5C5B0" }} />
+          <h3 className="font-medium mb-1" style={{ color: "#2E2E2E" }}>No rides yet</h3>
+          <p className="text-sm mb-4" style={{ color: "#666666" }}>Create your first ride to get started.</p>
+          <Link
             href="/driver/create-ride"
-            className="inline-flex bg-white border border-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-sm"
+            className="inline-block px-4 py-2 rounded-lg font-medium text-white transition-colors"
+            style={{ backgroundColor: "#556B2F" }}
+            onMouseEnter={(e) => e.target.style.opacity = "0.9"}
+            onMouseLeave={(e) => e.target.style.opacity = "1"}
           >
-            Create your first ride
+            Create Ride
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {rides.map(ride => {
             const departureDate = new Date(ride.departure_time);
             const isPast = departureDate < new Date();
-            
-            return (
-              <motion.div whileHover={{ scale: 1.05 }} key={ride._id} className="bg-white/20 backdrop-blur-lg rounded-2xl shadow-lg border border-white/30 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col">
-                <div className={`px-5 py-3 border-b text-xs font-bold uppercase tracking-wider ${
-                  isPast ? "bg-gray-50 text-gray-500 border-gray-100" : "bg-blue-50 text-blue-700 border-blue-100"
-                }`}>
-                  {isPast ? "Completed / Past" : "Upcoming"}
-                </div>
-                
-                <div className="p-5 flex-1">
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className="flex flex-col items-center mt-1">
-                      <div className="w-3 h-3 rounded-full border-2 border-blue-600"></div>
-                      <div className="w-0.5 h-10 bg-gray-200 my-1"></div>
-                      <div className="w-3 h-3 rounded-full bg-blue-600"></div>
-                    </div>
-                    <div className="flex-1 space-y-4">
-                      <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Pickup</p>
-                        <p className="font-medium text-gray-900">{ride.pickup_location}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Drop-off</p>
-                        <p className="font-medium text-gray-900">{ride.drop_location}</p>
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-4 bg-white/50 p-4 rounded-xl border border-white/40">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm font-medium text-gray-800">
-                        {departureDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm font-medium text-gray-800">
-                        {departureDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm font-medium text-gray-800">
-                        {ride.available_seats} {ride.available_seats === 1 ? 'seat' : 'seats'}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm font-medium text-gray-800">
-                        ₹{ride.price}
-                      </span>
-                    </div>
+            return (
+              <motion.div whileHover={{ scale: 1.02 }} key={ride._id} className="p-4 rounded-lg border" style={{ backgroundColor: "#FAF9F6", borderColor: "#E5E5DC" }}>
+                <div className="flex justify-between items-start mb-3">
+                  <span className="text-xs font-semibold px-2 py-1 rounded" style={{ backgroundColor: isPast ? "#F0F0E8" : "#F0F0E8", color: isPast ? "#999999" : "#556B2F" }}>
+                    {isPast ? "Past" : "Upcoming"}
+                  </span>
+                </div>
+
+                <p className="font-medium mb-2" style={{ color: "#2E2E2E" }}>
+                  {ride.pickup_location} → {ride.drop_location}
+                </p>
+
+                <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+                  <div>
+                    <p style={{ color: "#999999" }}>Date</p>
+                    <p style={{ color: "#2E2E2E" }}>{departureDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</p>
+                  </div>
+                  <div>
+                    <p style={{ color: "#999999" }}>Time</p>
+                    <p style={{ color: "#2E2E2E" }}>{departureDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}</p>
+                  </div>
+                  <div>
+                    <p style={{ color: "#999999" }}>Seats</p>
+                    <p style={{ color: "#2E2E2E" }}>{ride.available_seats}</p>
+                  </div>
+                  <div>
+                    <p style={{ color: "#999999" }}>Price</p>
+                    <p className="font-medium" style={{ color: "#556B2F" }}>₹{ride.price}</p>
                   </div>
                 </div>
               </motion.div>

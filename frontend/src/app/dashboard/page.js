@@ -1,17 +1,35 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../../context/AuthContext";
-import api from "../../../lib/axios";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { User, LogOut, Settings, RotateCcw, Car, Users, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Search,
+  PlusCircle,
+  LogOut,
+  CarFront,
+  MapPin,
+  Calendar,
+  Users,
+  Route,
+  Wallet,
+  ShieldCheck,
+  ChevronDown
+} from "lucide-react";
 
 export default function Dashboard() {
-  const { user, loading, logout, updateRoleState } = useAuth();
+  const { user, loading, logout } = useAuth();
   const router = useRouter();
-  const [switching, setSwitching] = useState(false);
-  const [error, setError] = useState("");
+
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [date, setDate] = useState("");
+  const [passengers, setPassengers] = useState("1");
+  const [showCampusRoutes, setShowCampusRoutes] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -19,180 +37,350 @@ export default function Dashboard() {
     }
   }, [user, loading, router]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setProfileOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    router.push(`/passenger/search-ride?from=${from}&to=${to}&date=${date}&passengers=${passengers}&campus=${showCampusRoutes}`);
+  };
+
+  const handleLogout = () => {
+    setProfileOpen(false);
+    logout();
+  };
+
   if (loading || !user) {
     return (
-      <div className="min-h-screen w-full px-4 md:px-8 lg:px-12 py-8 bg-gradient-to-br from-blue-100 via-purple-100 to-cyan-100">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
-          <div className="h-48 rounded-2xl bg-white/40 border border-white/50" />
-          <div className="h-48 rounded-2xl bg-white/40 border border-white/50" />
-        </div>
+      <div className="min-h-screen w-full bg-[#f3f3f3] flex items-center justify-center">
+        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
+          <Search className="w-8 h-8 text-black" />
+        </motion.div>
       </div>
     );
   }
 
-  const handleSwitchRole = async () => {
-    setSwitching(true);
-    setError("");
-    try {
-      const res = await api.patch("/auth/switch-role");
-      updateRoleState(res.data.user);
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to switch role.");
-    } finally {
-      setSwitching(false);
-    }
-  };
-
-  const isDriver = user.currentRole === "driver";
-  const hasBothRoles = user.roles.length === 2;
+  const features = [
+    {
+      icon: Route,
+      title: "Travel everywhere",
+      description: "Choose from thousands of destinations and campus routes. No matter where you're going, we'll get you there.",
+    },
+    {
+      icon: Wallet,
+      title: "Prices like nowhere",
+      description: "Spend smarter. Share costs with verified students and commuters for the most affordable journeys.",
+    },
+    {
+      icon: ShieldCheck,
+      title: "Ride with confidence",
+      description: "We verify profiles, IDs, and campus emails so you know exactly who you're traveling with.",
+    },
+  ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="min-h-screen w-full bg-gradient-to-br from-blue-100 via-purple-100 to-cyan-100 flex flex-col"
-    >
-      {/* Navbar */}
-      <nav className="w-full sticky top-0 z-40 bg-white/30 backdrop-blur-md shadow-sm border-b border-white/40">
-        <div className="w-full px-4 md:px-8 lg:px-12">
-          <div className="flex justify-between items-center h-16 w-full">
-            <div className="flex items-center gap-2 text-blue-600 font-bold text-xl">
-              <Car className="w-6 h-6" />
-              <span>Ride LPU</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link href="/settings" className="text-gray-500 hover:text-gray-700 transition-colors">
-                <Settings className="w-5 h-5" />
-              </Link>
-              <button 
-                onClick={logout}
-                className="flex items-center gap-2 text-gray-500 hover:text-red-600 transition-colors"
-                title="Logout"
+    <div className="min-h-screen w-full bg-[#f3f3f3] text-[#111111] font-sans flex flex-col">
+      {/* NAVBAR */}
+      <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
+        <div className="mx-auto flex h-16 w-full max-w-[1280px] items-center justify-between px-4 sm:px-6 lg:px-10">
+          <Link href="/dashboard" className="text-2xl font-bold tracking-tight text-black flex items-center gap-2">
+            UniPool
+          </Link>
+          
+          <div className="flex items-center gap-2 sm:gap-4">
+            <button
+              onClick={() => document.getElementById("search-form")?.scrollIntoView({ behavior: "smooth" })}
+              className="hidden sm:flex items-center gap-2 px-3 py-2 text-sm font-medium text-black hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <Search className="h-5 w-5" />
+              <span>Search</span>
+            </button>
+
+            <Link
+              href="/driver/create-ride"
+              className="hidden sm:flex items-center gap-2 px-3 py-2 text-sm font-medium text-black hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <PlusCircle className="h-5 w-5" />
+              <span>Offer a ride</span>
+            </Link>
+
+            <div className="relative" ref={dropdownRef}>
+              <button
+                type="button"
+                onClick={() => setProfileOpen(!profileOpen)}
+                className="flex items-center gap-2 p-1.5 pl-3 border border-gray-300 rounded-full bg-white hover:shadow-md transition-shadow"
               >
-                <LogOut className="w-5 h-5" />
-                <span className="hidden sm:inline">Logout</span>
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-black text-white text-sm font-semibold">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <ChevronDown className="h-4 w-4 text-gray-500 mr-1" />
               </button>
+
+              <AnimatePresence>
+                {profileOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2 w-56 rounded-2xl bg-white shadow-xl border border-gray-100 overflow-hidden"
+                  >
+                    <div className="p-4 border-b border-gray-100">
+                      <p className="font-semibold text-black truncate">{user.name}</p>
+                      <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                    </div>
+                    <div className="p-2">
+                      <Link
+                        href="/driver/my-rides"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-100 rounded-xl transition-colors"
+                      >
+                        <CarFront className="h-4 w-4" />
+                        My Rides
+                      </Link>
+                      <Link
+                        href="/passenger/bookings"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-100 rounded-xl transition-colors"
+                      >
+                        <MapPin className="h-4 w-4" />
+                        Bookings
+                      </Link>
+                    </div>
+                    <div className="p-2 border-t border-gray-100">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Logout
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
-      </nav>
+      </header>
 
-      {/* Main Content */}
-      <main className="flex-1 w-full px-4 md:px-8 lg:px-12 py-6 md:py-8">
-        
-        {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 shadow-sm border border-red-100">
-            {error}
-          </div>
-        )}
-
-        <div className="bg-white/20 backdrop-blur-lg rounded-2xl shadow-lg border border-white/30 p-6 sm:p-8 relative overflow-hidden">
-          {/* Decorative background element */}
-          <div className="absolute top-0 right-0 -mt-16 -mr-16 w-48 h-48 bg-blue-50 rounded-full opacity-50 pointer-events-none" />
-
-          <div className="flex items-center gap-4 mb-8 relative z-10">
-            <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xl font-bold shadow-sm">
-              {user.name.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <h1 className="text-3xl justify-center font-bold text-gray-900 tracking-tight">
-                Welcome, {user.name.split(" ")[0]}!
-              </h1>
-              <p className="text-gray-500 mt-1">{user.email}</p>
-            </div>
+      <main className="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-10 flex-1 pb-20">
+        {/* HERO SECTION */}
+        <section className="flex flex-col lg:grid lg:grid-cols-2 items-center gap-10 py-8 md:py-12 lg:gap-14">
+          <div className="flex flex-col justify-center order-1 w-full">
+            <h1 className="w-full lg:max-w-[550px] text-[48px] font-bold leading-[1.05] tracking-tight text-black sm:text-[60px]">
+              Travel anywhere together. Spend smarter.
+            </h1>
+            <p className="mt-6 w-full lg:max-w-[450px] text-xl text-gray-700 leading-relaxed">
+              Find and share rides easily within your campus and nearby routes.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-            
-            {/* Current Role Card */}
-            <div className={`p-6 rounded-2xl border shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl ${isDriver ? 'bg-indigo-50/70 border-indigo-100' : 'bg-emerald-50/70 border-emerald-100'}`}>
-              <div className="flex items-center gap-3 mb-3">
-                {isDriver ? <Car className="w-6 h-6 text-indigo-600" /> : <Users className="w-6 h-6 text-emerald-600" />}
-                <h3 className="font-semibold text-gray-900 text-lg">Active Role</h3>
+          <div className="w-full order-2">
+            <div className="h-[300px] sm:h-[380px] lg:h-[450px] w-full overflow-hidden rounded-3xl bg-[#dddddd]">
+              <img
+                src="https://images.unsplash.com/photo-1549921296-3a6b81f4f6d1?auto=format&fit=crop&w=1200&q=80"
+                alt="UniPool journey placeholder"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* SEARCH BAR */}
+        <section className="relative z-20 mb-10 lg:mb-20">
+          {/* SHOW CAMPUS ROUTES TOGGLE */}
+          <div className="mb-2">
+            <label className="inline-flex items-center gap-2 cursor-pointer group">
+              <div className="relative flex items-center justify-center w-5 h-5 rounded border-2 border-gray-300 bg-white group-hover:border-black transition-colors">
+                <input
+                  type="checkbox"
+                  checked={showCampusRoutes}
+                  onChange={(e) => setShowCampusRoutes(e.target.checked)}
+                  className="peer sr-only"
+                />
+                {showCampusRoutes && (
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute inset-0 bg-black rounded-[2px] flex items-center justify-center">
+                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </motion.div>
+                )}
               </div>
-              <p className="text-3xl font-bold text-gray-900 capitalize mb-4">
-                {user.currentRole}
-              </p>
-              
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-4">
-                  {hasBothRoles ? (
-                    <motion.button
-                      onClick={handleSwitchRole}
-                      disabled={switching}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/90 text-gray-700 hover:bg-white border shadow-sm px-4 py-2 rounded-xl transition-all font-medium text-sm"
-                    >
-                      {switching ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
-                      Switch to {isDriver ? "Passenger" : "Driver"}
-                    </motion.button>
-                  ) : (
-                    <Link
-                      href="/settings"
-                      className="text-sm font-medium text-blue-600 hover:underline"
-                    >
-                      Add {isDriver ? "Passenger" : "Driver"} role to switch
-                    </Link>
-                  )}
+              <span className="text-sm text-gray-600 font-medium select-none group-hover:text-black transition-colors">
+                Show campus routes
+              </span>
+            </label>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="rounded-3xl bg-white p-2 shadow-xl border border-gray-100"
+          >
+            <form id="search-form" onSubmit={handleSearch} className="flex flex-col lg:flex-row items-center gap-2">
+              <div className="flex w-full flex-col lg:flex-row flex-1 border border-gray-200 lg:border-none rounded-2xl lg:rounded-none overflow-hidden">
+                <div className="flex flex-1 items-center gap-3 bg-white px-4 py-3 lg:border-r border-gray-200 border-b lg:border-b-0 hover:bg-gray-50 transition-colors">
+                  <MapPin className="h-5 w-5 text-gray-400 shrink-0" />
+                  <input
+                    type="text"
+                    required
+                    value={from}
+                    onChange={(e) => setFrom(e.target.value)}
+                    placeholder="Leaving from"
+                    className="w-full bg-transparent text-base font-medium outline-none placeholder:font-normal placeholder:text-gray-500"
+                  />
                 </div>
                 
-                {isDriver && (
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link
-                    href="/driver"
-                    className="inline-flex items-center gap-2 bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm px-4 py-2 rounded-xl transition-all font-medium text-sm w-full sm:w-max mt-2 justify-center"
-                  >
-                    <Car className="w-4 h-4" /> Go to Driver Panel &rarr;
-                  </Link>
-                  </motion.div>
-                )}
+                <div className="flex flex-1 items-center gap-3 bg-white px-4 py-3 lg:border-r border-gray-200 border-b lg:border-b-0 hover:bg-gray-50 transition-colors">
+                  <MapPin className="h-5 w-5 text-gray-400 shrink-0" />
+                  <input
+                    type="text"
+                    required
+                    value={to}
+                    onChange={(e) => setTo(e.target.value)}
+                    placeholder="Going to"
+                    className="w-full bg-transparent text-base font-medium outline-none placeholder:font-normal placeholder:text-gray-500"
+                  />
+                </div>
 
-                {!isDriver && (
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link
-                    href="/passenger"
-                    className="inline-flex items-center gap-2 bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm px-4 py-2 rounded-xl transition-all font-medium text-sm w-full sm:w-max mt-2 justify-center"
-                  >
-                    <Users className="w-4 h-4" /> Go to Passenger Panel &rarr;
-                  </Link>
-                  </motion.div>
-                )}
-              </div>
-            </div>
+                <div className="flex flex-1 items-center gap-3 bg-white px-4 py-3 lg:border-r border-gray-200 border-b lg:border-b-0 hover:bg-gray-50 transition-colors">
+                  <Calendar className="h-5 w-5 text-gray-400 shrink-0" />
+                  <input
+                    type="date"
+                    required
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="w-full bg-transparent text-base font-medium outline-none text-gray-700"
+                  />
+                </div>
 
-            {/* Account Status Card */}
-            <div className="p-6 rounded-2xl border border-white/40 bg-white/40 shadow-lg flex flex-col justify-between transition-all duration-300 hover:scale-105 hover:shadow-2xl">
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <User className="w-5 h-5 text-gray-500" /> Associated Roles
-                </h3>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {user.roles.map(role => (
-                    <span key={role} className="px-3 py-1 bg-white border shadow-sm text-gray-700 text-sm font-medium rounded-full capitalize">
-                      {role}
-                    </span>
-                  ))}
+                <div className="flex sm:w-48 items-center gap-3 bg-white px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer relative">
+                  <Users className="h-5 w-5 text-gray-400 shrink-0" />
+                  <select
+                    value={passengers}
+                    onChange={(e) => setPassengers(e.target.value)}
+                    className="w-full bg-transparent text-base font-medium outline-none cursor-pointer appearance-none text-gray-700"
+                  >
+                    {[1, 2, 3, 4, 5].map(num => (
+                      <option key={num} value={num}>{num} passenger{num > 1 ? 's' : ''}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-4 h-4 w-4 text-gray-400 pointer-events-none" />
                 </div>
               </div>
-              
-              {!hasBothRoles && (
-                <div className="mt-auto pt-4 border-t border-gray-200">
-                  <Link 
-                    href="/settings"
-                    className="text-blue-600 font-medium text-sm hover:underline"
-                  >
-                    Manage Roles (Add {isDriver ? "Passenger" : "Driver"}) &rarr;
-                  </Link>
-                </div>
-              )}
-            </div>
 
+              <motion.button
+                type="submit"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full lg:w-auto h-14 px-8 rounded-2xl bg-black text-white font-semibold text-base transition hover:bg-[#1f1f1f] active:bg-[#2a2a2a] whitespace-nowrap shadow-md"
+              >
+                Search
+              </motion.button>
+            </form>
+          </motion.div>
+        </section>
+
+        {/* DRIVER CTA CARD */}
+        <section className="mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="w-full rounded-3xl bg-[#1B2B50] p-10 md:p-14 text-center shadow-lg"
+          >
+            <h2 className="text-3xl font-bold text-white sm:text-4xl">Share your ride. Cut your costs.</h2>
+            <p className="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">
+              Carpool as a driver to turn your empty seats into lower travel costs.
+            </p>
+            <Link
+              href="/driver/create-ride"
+              className="mt-8 inline-flex items-center justify-center h-14 px-8 rounded-2xl bg-white text-black font-bold text-base transition hover:bg-gray-100 active:bg-gray-200"
+            >
+              Share your ride
+            </Link>
+          </motion.div>
+        </section>
+
+        {/* INFO CARD */}
+        <section className="mb-16 flex flex-col md:grid md:grid-cols-2 items-center gap-10 lg:gap-14 bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100">
+          <div className="w-full h-[250px] sm:h-[300px] md:h-full order-1 md:order-1 bg-[#dddddd]">
+            <img
+              src="https://images.unsplash.com/photo-1549921296-3a6b81f4f6d1?auto=format&fit=crop&w=800&q=80"
+              alt="Never miss a carpool"
+              className="w-full h-full object-cover"
+            />
           </div>
-        </div>
+          <div className="p-8 md:p-12 order-2 md:order-2 flex flex-col justify-center items-start">
+            <h2 className="text-3xl font-bold text-black sm:text-4xl">Never miss a carpool!</h2>
+            <p className="mt-4 text-lg text-gray-600">
+              Set up alerts to get notified instantly when a ride matching your route becomes available.
+            </p>
+            <Link
+              href="/passenger/search-ride"
+              className="mt-8 inline-flex items-center justify-center h-14 px-8 rounded-2xl bg-black text-white font-bold text-base transition hover:bg-[#1f1f1f] active:bg-[#2a2a2a]"
+            >
+              Find a ride
+            </Link>
+          </div>
+        </section>
+
+        {/* FEATURE SECTION */}
+        <section className="py-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-10">
+            {features.map((feature, index) => {
+              const Icon = feature.icon;
+              return (
+                <motion.article
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  whileHover={{ y: -4 }}
+                  className="rounded-3xl bg-white p-8 shadow-[0_8px_24px_rgba(0,0,0,0.04)] border border-gray-100 transition-shadow hover:shadow-[0_14px_30px_rgba(0,0,0,0.08)]"
+                >
+                  <div className="mb-6 inline-flex rounded-xl bg-black p-3 text-white">
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="mb-3 text-xl font-bold text-black">{feature.title}</h3>
+                  <p className="text-[15px] leading-relaxed text-gray-600">{feature.description}</p>
+                </motion.article>
+              );
+            })}
+          </div>
+        </section>
 
       </main>
-    </motion.div>
+
+      {/* FOOTER */}
+      <footer className="w-full bg-black py-10 text-white mt-auto">
+        <div className="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="text-2xl font-bold tracking-tight">
+              UniPool
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm font-medium text-gray-300">
+              <Link href="#" className="hover:text-white transition">About</Link>
+              <Link href="#" className="hover:text-white transition">How it works</Link>
+              <Link href="#" className="hover:text-white transition">Contact</Link>
+            </div>
+          </div>
+          <div className="mt-8 text-center md:text-left text-xs text-gray-500">
+            © 2026 UniPool. All rights reserved.
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }

@@ -25,98 +25,70 @@ export default function DriverDashboard() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
-        <div className="h-36 rounded-2xl bg-white/40 border border-white/50" />
-        <div className="h-36 rounded-2xl bg-white/40 border border-white/50" />
-        <div className="h-36 rounded-2xl bg-white/40 border border-white/50 md:col-span-2 lg:col-span-1" />
+      <div className="min-h-screen flex items-center justify-center" style={{ color: "#556B2F" }}>
+        <div className="animate-spin">
+          <Car className="w-8 h-8" />
+        </div>
       </div>
     );
   }
 
   const upcomingRides = rides.filter(ride => new Date(ride.departure_time) > new Date());
-  
+
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="w-full min-h-screen">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6 tracking-tight">Driver Dashboard</h1>
-      
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="w-full space-y-6">
+      <h1 className="text-2xl font-bold" style={{ color: "#2E2E2E" }}>Driver Dashboard</h1>
+
       {error && (
-        <div className="mb-6 bg-red-50 text-red-700 p-4 rounded-xl border border-red-100 flex items-center gap-3">
-          <AlertCircle className="w-5 h-5" />
+        <div className="p-4 rounded-lg border flex items-center gap-3" style={{ backgroundColor: "#FFE5E5", color: "#CC0000", borderColor: "#FFD5D5" }}>
+          <AlertCircle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-        <motion.div whileHover={{ scale: 1.05 }} className="bg-white/20 backdrop-blur-lg p-6 rounded-2xl shadow-lg border border-white/30 hover:shadow-2xl transition-all duration-300">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
-              <Car className="w-6 h-6" />
-            </div>
-            <h3 className="font-semibold text-gray-700">Total Rides Created</h3>
-          </div>
-          <p className="text-4xl font-bold text-gray-900">{rides.length}</p>
-        </motion.div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="p-6 rounded-xl shadow-sm border" style={{ backgroundColor: "#FAF9F6", borderColor: "#E5E5DC" }}>
+          <p className="text-sm font-medium mb-1" style={{ color: "#666666" }}>Total Rides</p>
+          <p className="text-3xl font-bold" style={{ color: "#556B2F" }}>{rides.length}</p>
+        </div>
 
-        <motion.div whileHover={{ scale: 1.05 }} className="bg-white/20 backdrop-blur-lg p-6 rounded-2xl shadow-lg border border-white/30 hover:shadow-2xl transition-all duration-300">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-              <CalendarClock className="w-6 h-6" />
-            </div>
-            <h3 className="font-semibold text-gray-700">Upcoming Rides</h3>
-          </div>
-          <p className="text-4xl font-bold text-gray-900">{upcomingRides.length}</p>
-        </motion.div>
+        <div className="p-6 rounded-xl shadow-sm border" style={{ backgroundColor: "#FAF9F6", borderColor: "#E5E5DC" }}>
+          <p className="text-sm font-medium mb-1" style={{ color: "#666666" }}>Upcoming Rides</p>
+          <p className="text-3xl font-bold" style={{ color: "#556B2F" }}>{upcomingRides.length}</p>
+        </div>
 
-        <motion.div whileHover={{ scale: 1.05 }} className="bg-white/20 backdrop-blur-lg p-6 rounded-2xl shadow-lg border border-white/30 hover:shadow-2xl transition-all duration-300 md:col-span-2 lg:col-span-1">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
-              <TrendingUp className="w-6 h-6" />
-            </div>
-            <h3 className="font-semibold text-gray-700">Status</h3>
-          </div>
-          <p className="text-lg font-medium text-gray-900">
-            {upcomingRides.length > 0 ? "Active driver" : "No active rides"}
+        <div className="p-6 rounded-xl shadow-sm border" style={{ backgroundColor: "#FAF9F6", borderColor: "#E5E5DC" }}>
+          <p className="text-sm font-medium mb-1" style={{ color: "#666666" }}>Status</p>
+          <p className="font-medium" style={{ color: "#2E2E2E" }}>
+            {upcomingRides.length > 0 ? "Active" : "No rides"}
           </p>
-        </motion.div>
+        </div>
       </div>
 
-      <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Upcoming Rides Overview</h2>
+      <div className="space-y-3">
+        <h2 className="text-lg font-bold" style={{ color: "#2E2E2E" }}>Upcoming Rides</h2>
         {upcomingRides.length === 0 ? (
-          <div className="bg-white/20 backdrop-blur-lg border border-dashed border-white/40 rounded-2xl p-8 text-center text-gray-600">
-            You don&apos;t have any upcoming rides.
+          <div className="p-8 text-center rounded-xl border" style={{ backgroundColor: "#FAF9F6", borderColor: "#E5E5DC", color: "#666666" }}>
+            No upcoming rides
           </div>
         ) : (
-          <div className="bg-white/20 backdrop-blur-lg rounded-2xl shadow-lg border border-white/30 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-gray-50 border-b text-gray-600 text-sm">
-                    <th className="p-4 font-medium">Route</th>
-                    <th className="p-4 font-medium">Departure</th>
-                    <th className="p-4 font-medium">Seats</th>
-                    <th className="p-4 font-medium">Price</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {upcomingRides.slice(0, 5).map(ride => (
-                    <tr key={ride._id} className="hover:bg-white/40 transition-colors">
-                      <td className="p-4">
-                        <div className="font-medium text-gray-900">{ride.pickup_location}</div>
-                        <div className="text-sm text-gray-500">&rarr; {ride.drop_location}</div>
-                      </td>
-                      <td className="p-4 text-gray-700">
-                        {new Date(ride.departure_time).toLocaleString(undefined, {
-                          dateStyle: 'short', timeStyle: 'short'
-                        })}
-                      </td>
-                      <td className="p-4 text-gray-700">{ride.available_seats}</td>
-                      <td className="p-4 font-medium text-gray-900">₹{ride.price}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className="space-y-3">
+            {upcomingRides.slice(0, 5).map(ride => (
+              <div key={ride._id} className="p-4 rounded-lg border" style={{ backgroundColor: "#FAF9F6", borderColor: "#E5E5DC" }}>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                  <div className="flex-1">
+                    <p className="font-medium" style={{ color: "#2E2E2E" }}>{ride.pickup_location} → {ride.drop_location}</p>
+                    <p className="text-sm mt-1" style={{ color: "#666666" }}>
+                      {new Date(ride.departure_time).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
+                    </p>
+                  </div>
+                  <div className="flex gap-4 text-sm">
+                    <span style={{ color: "#2E2E2E" }}>{ride.available_seats} seats</span>
+                    <span className="font-medium" style={{ color: "#556B2F" }}>₹{ride.price}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
