@@ -60,10 +60,30 @@ export default function Dashboard() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen w-full bg-[#f3f3f3] flex items-center justify-center">
-        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
-          <Search className="w-8 h-8 text-black" />
-        </motion.div>
+      <div className="min-h-screen w-full bg-[#f3f3f3] flex flex-col font-sans">
+        {/* Skeleton Header */}
+        <div className="h-16 w-full bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 lg:px-10">
+          <div className="w-24 h-6 bg-gray-200 rounded-md animate-pulse"></div>
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-8 bg-gray-200 rounded-full animate-pulse hidden sm:block"></div>
+            <div className="w-24 h-8 bg-gray-200 rounded-full animate-pulse hidden sm:block"></div>
+            <div className="w-12 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+          </div>
+        </div>
+        {/* Skeleton Main */}
+        <div className="mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-10 flex-1 py-12">
+          <div className="flex flex-col lg:grid lg:grid-cols-2 gap-10 lg:gap-14 mb-10">
+            <div className="space-y-4">
+              <div className="w-3/4 h-12 md:h-16 bg-gray-200 rounded-2xl animate-pulse"></div>
+              <div className="w-2/4 h-12 md:h-16 bg-gray-200 rounded-2xl animate-pulse"></div>
+              <div className="w-full h-6 bg-gray-200 rounded-md animate-pulse mt-6"></div>
+              <div className="w-5/6 h-6 bg-gray-200 rounded-md animate-pulse"></div>
+            </div>
+            <div className="w-full h-[300px] sm:h-[380px] lg:h-[450px] bg-gray-200 rounded-3xl animate-pulse"></div>
+          </div>
+          {/* Skeleton Search */}
+          <div className="w-full h-20 bg-white rounded-3xl border border-gray-100 shadow-sm animate-pulse"></div>
+        </div>
       </div>
     );
   }
@@ -94,7 +114,7 @@ export default function Dashboard() {
           <Link href="/dashboard" className="text-2xl font-bold tracking-tight text-black flex items-center gap-2">
             UniPool
           </Link>
-          
+
           <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={() => document.getElementById("search-form")?.scrollIntoView({ behavior: "smooth" })}
@@ -240,7 +260,7 @@ export default function Dashboard() {
                     className="w-full bg-transparent text-base font-medium outline-none placeholder:font-normal placeholder:text-gray-500"
                   />
                 </div>
-                
+
                 <div className="flex flex-1 items-center gap-3 bg-white px-4 py-3 lg:border-r border-gray-200 border-b lg:border-b-0 hover:bg-gray-50 transition-colors">
                   <MapPin className="h-5 w-5 text-gray-400 shrink-0" />
                   <input
@@ -371,9 +391,9 @@ export default function Dashboard() {
               UniPool
             </div>
             <div className="flex flex-wrap items-center justify-center gap-6 text-sm font-medium text-gray-300">
-              <Link href="#" className="hover:text-white transition">About</Link>
-              <Link href="#" className="hover:text-white transition">How it works</Link>
-              <Link href="#" className="hover:text-white transition">Contact</Link>
+              <Link href="/about" className="hover:text-white transition">About</Link>
+              <Link href="/how-it-works" className="hover:text-white transition">How it works</Link>
+              <Link href="/contact?from=dashboard" className="hover:text-white transition">Contact</Link>
             </div>
           </div>
           <div className="mt-8 text-center md:text-left text-xs text-gray-500">

@@ -13,34 +13,18 @@ export default function Register() {
     email: "",
     password: "",
   });
-  const [roles, setRoles] = useState({
-    driver: false,
-    passenger: false,
-  });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const handleRoleChange = (role) => {
-    setRoles((prev) => ({ ...prev, [role]: !prev[role] }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    const selectedRoles = Object.keys(roles).filter((role) => roles[role]);
-
-    if (selectedRoles.length === 0) {
-      setError("Please select at least one role.");
-      setLoading(false);
-      return;
-    }
-
     try {
       await api.post("/auth/register", {
         ...formData,
-        roles: selectedRoles,
+        roles: ["passenger"], // Provide a default role or backend might crash if it expects an array
       });
       localStorage.setItem("otpEmail", formData.email);
       router.push("/verify-otp");
@@ -52,21 +36,20 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center px-4 py-8" style={{ backgroundColor: "#F5F5DC" }}>
+    <div className="min-h-screen w-full flex items-center justify-center px-4 py-8 bg-[#f3f3f3]">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="w-full sm:max-w-md rounded-xl shadow-sm border"
-        style={{ backgroundColor: "#FAF9F6", borderColor: "#E5E5DC" }}
+        className="w-full sm:max-w-md rounded-3xl shadow-[0_8px_24px_rgba(0,0,0,0.04)] border border-gray-100 bg-white"
       >
         <div className="p-6 sm:p-8 space-y-6">
           <div className="text-center space-y-2">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto" style={{ backgroundColor: "#556B2F" }}>
+            <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto bg-black">
               <CarFront className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-2xl font-bold" style={{ color: "#2E2E2E" }}>Create Account</h1>
-            <p style={{ color: "#666666" }}>Join LPU Ride Pooling</p>
+            <h1 className="text-2xl font-bold text-black">Create Account</h1>
+            <p className="text-gray-500">Join UniPool</p>
           </div>
 
           {error && (
@@ -77,7 +60,7 @@ export default function Register() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: "#2E2E2E" }}>
+              <label className="block text-sm font-medium mb-2 text-gray-700">
                 Full Name
               </label>
               <input
@@ -85,16 +68,13 @@ export default function Register() {
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-3 border rounded-lg focus:outline-none transition-colors"
-                style={{ borderColor: "#D5D5CC", color: "#2E2E2E" }}
-                onFocus={(e) => e.target.style.borderColor = "#556B2F"}
-                onBlur={(e) => e.target.style.borderColor = "#D5D5CC"}
+                className="w-full px-4 py-3 bg-[#f9f9f9] border border-transparent rounded-xl focus:bg-white focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
                 placeholder="John Doe"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: "#2E2E2E" }}>
+              <label className="block text-sm font-medium mb-2 text-gray-700">
                 Email
               </label>
               <input
@@ -102,16 +82,13 @@ export default function Register() {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 border rounded-lg focus:outline-none transition-colors"
-                style={{ borderColor: "#D5D5CC", color: "#2E2E2E" }}
-                onFocus={(e) => e.target.style.borderColor = "#556B2F"}
-                onBlur={(e) => e.target.style.borderColor = "#D5D5CC"}
-                placeholder="john.doe@lpu.in"
+                className="w-full px-4 py-3 bg-[#f9f9f9] border border-transparent rounded-xl focus:bg-white focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
+                placeholder="john.doe@uni.edu"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: "#2E2E2E" }}>
+              <label className="block text-sm font-medium mb-2 text-gray-700">
                 Password
               </label>
               <input
@@ -120,40 +97,9 @@ export default function Register() {
                 minLength={6}
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-4 py-3 border rounded-lg focus:outline-none transition-colors"
-                style={{ borderColor: "#D5D5CC", color: "#2E2E2E" }}
-                onFocus={(e) => e.target.style.borderColor = "#556B2F"}
-                onBlur={(e) => e.target.style.borderColor = "#D5D5CC"}
+                className="w-full px-4 py-3 bg-[#f9f9f9] border border-transparent rounded-xl focus:bg-white focus:border-black focus:ring-1 focus:ring-black outline-none transition-all"
                 placeholder="••••••••"
               />
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-medium" style={{ color: "#2E2E2E" }}>
-                Select Roles
-              </label>
-              <div className="flex flex-col gap-2">
-                <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg transition-colors" style={{ backgroundColor: "#F5F5DC" }}>
-                  <input
-                    type="checkbox"
-                    className="w-5 h-5 rounded"
-                    checked={roles.driver}
-                    onChange={() => handleRoleChange("driver")}
-                    style={{ accentColor: "#556B2F" }}
-                  />
-                  <span style={{ color: "#2E2E2E" }}>Driver</span>
-                </label>
-                <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg transition-colors" style={{ backgroundColor: "#F5F5DC" }}>
-                  <input
-                    type="checkbox"
-                    className="w-5 h-5 rounded"
-                    checked={roles.passenger}
-                    onChange={() => handleRoleChange("passenger")}
-                    style={{ accentColor: "#556B2F" }}
-                  />
-                  <span style={{ color: "#2E2E2E" }}>Passenger</span>
-                </label>
-              </div>
             </div>
 
             <motion.button
@@ -161,16 +107,15 @@ export default function Register() {
               disabled={loading}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full py-3 rounded-lg font-medium text-white transition-all flex items-center justify-center mt-2"
-              style={{ backgroundColor: "#556B2F" }}
+              className="w-full py-4 rounded-xl bg-black text-white font-bold text-base transition hover:bg-[#1f1f1f] flex items-center justify-center mt-2"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign Up"}
             </motion.button>
           </form>
 
-          <p className="text-center text-sm" style={{ color: "#666666" }}>
+          <p className="text-center text-sm text-gray-500">
             Already have an account?{" "}
-            <Link href="/login" className="font-medium hover:underline" style={{ color: "#556B2F" }}>
+            <Link href="/login" className="font-semibold text-black hover:underline">
               Sign in
             </Link>
           </p>

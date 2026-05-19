@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
+import { useRouter } from "next/navigation";
 import api from "../../../lib/axios";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Loader2,
   ChevronDown,
@@ -12,17 +13,27 @@ import {
   Sparkles,
   Route,
   UsersRound,
-  UserCircle2,
+  PlusCircle,
+  X,
 } from "lucide-react";
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [aboutOpen, setAboutOpen] = useState(false);
   const [openFaqId, setOpenFaqId] = useState(0);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  const handleOfferRide = () => {
+    if (user) {
+      router.push("/driver/create-ride");
+    } else {
+      setShowLoginModal(true);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -93,52 +104,55 @@ export default function Login() {
             <Link href="/login" className="text-2xl font-semibold tracking-tight">
               UniPool
             </Link>
-            <nav className="hidden items-center gap-6 text-sm font-medium lg:flex">
-              <Link href="#hero" className="transition-opacity hover:opacity-80">
-                Ride
-              </Link>
-              <Link href="#features" className="transition-opacity hover:opacity-80">
-                Drive
-              </Link>
-              <Link href="#features" className="transition-opacity hover:opacity-80">
-                Business
-              </Link>
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setAboutOpen((prev) => !prev)}
-                  className="inline-flex items-center gap-1 transition-opacity hover:opacity-80"
-                >
-                  About <ChevronDown className={`h-4 w-4 transition-transform ${aboutOpen ? "rotate-180" : ""}`} />
-                </button>
-                {aboutOpen && (
-                  <div className="absolute left-0 top-9 min-w-40 rounded-lg bg-white p-2 text-black shadow-lg">
-                    <Link href="#faq" onClick={() => setAboutOpen(false)} className="block rounded-md px-3 py-2 text-sm hover:bg-gray-100">
-                      FAQ
-                    </Link>
-                    <Link href="#features" onClick={() => setAboutOpen(false)} className="block rounded-md px-3 py-2 text-sm hover:bg-gray-100">
-                      Features
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </nav>
           </div>
 
           <div className="flex items-center gap-4 text-sm font-medium">
-            <Link href="#faq" className="transition-opacity hover:opacity-80">
+            <Link href="/contact?from=login" className="transition-opacity hover:opacity-80">
               Help
             </Link>
             <button
-              type="button"
+              onClick={handleOfferRide}
               className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-black transition-colors hover:bg-gray-200"
             >
-              <UserCircle2 className="h-4 w-4" />
-              <span>Profile</span>
+              <PlusCircle className="h-4 w-4" />
+              <span>Offer a ride</span>
             </button>
           </div>
         </div>
       </header>
+
+      <AnimatePresence>
+        {showLoginModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl"
+            >
+              <button
+                onClick={() => setShowLoginModal(false)}
+                className="absolute right-4 top-4 text-gray-400 hover:text-black transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <h3 className="mb-2 text-xl font-bold text-black">Login Required</h3>
+              <p className="mb-6 text-sm text-gray-600">
+                You need to login first to offer a ride and start sharing your journey.
+              </p>
+              <button
+                onClick={() => {
+                  setShowLoginModal(false);
+                  document.getElementById("hero")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="w-full rounded-xl bg-black py-3 text-sm font-semibold text-white transition hover:bg-[#1f1f1f]"
+              >
+                Login Now
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <main>
         <section

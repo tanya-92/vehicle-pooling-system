@@ -4,7 +4,7 @@ const User = require('../models/User');
 const createRide = async (req, res) => {
   try {
     const { pickup_location, drop_location, departure_time, available_seats, price } = req.body;
-    
+
     // Validate required fields
     if (!pickup_location || !drop_location || !departure_time || !available_seats || !price) {
       return res.status(400).json({ message: 'All fields are required.' });
@@ -44,7 +44,7 @@ const createRide = async (req, res) => {
 const getAllRides = async (req, res) => {
   try {
     const { pickup_location, drop_location, date } = req.query;
-    
+
     let filter = {};
 
     if (pickup_location) {
@@ -59,7 +59,7 @@ const getAllRides = async (req, res) => {
       // Create a date range for the entire selected day (ignoring time)
       const startDate = new Date(date);
       startDate.setHours(0, 0, 0, 0);
-      
+
       const endDate = new Date(date);
       endDate.setHours(23, 59, 59, 999);
 
@@ -73,7 +73,7 @@ const getAllRides = async (req, res) => {
     const rides = await Ride.find(filter)
       .populate('driver_id', 'name email') // Populating driver info
       .sort({ departure_time: 1, created_at: -1 });
-      
+
     res.status(200).json({ rides });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

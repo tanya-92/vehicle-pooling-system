@@ -42,10 +42,10 @@ const register = async (req, res) => {
       existingUser.currentRole = roles[0];
       await existingUser.save();
       try {
-  await sendOTP(email, otp);
-} catch (err) {
-  console.log("⚠️ Email failed:", err.message);
-}
+        await sendOTP(email, otp);
+      } catch (err) {
+        console.log("⚠️ Email failed:", err.message);
+      }
       return res.status(200).json({ message: 'OTP sent to registered email for verification.' });
     }
 
@@ -65,10 +65,10 @@ const register = async (req, res) => {
 
     await newUser.save();
     try {
-  await sendOTP(email, otp);
-} catch (err) {
-  console.log("⚠️ Email failed:", err.message);
-}
+      await sendOTP(email, otp);
+    } catch (err) {
+      console.log("⚠️ Email failed:", err.message);
+    }
 
     res.status(201).json({ message: 'User registered successfully. Verify OTP to complete registration.' });
   } catch (error) {
