@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '../lib/axios';
 
@@ -10,24 +10,31 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const checkUser = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const res = await api.get('/auth/me');
-          setUser(res.data.user);
-        } catch (error) {
-          console.error('Auth check failed:', error);
-          localStorage.removeItem('token');
-          setUser(null);
-        }
-      }
+  const fetchUser = useCallback(async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setUser(null);
       setLoading(false);
-    };
+      return null;
+    }
 
-    checkUser();
+    try {
+      const res = await api.get('/auth/me');
+      setUser(res.data.user);
+      return res.data.user;
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      localStorage.removeItem('token');
+      setUser(null);
+      return null;
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
 
   const login = (userData, token) => {
     localStorage.setItem('token', token);
@@ -41,12 +48,20 @@ export const AuthProvider = ({ children }) => {
     router.push('/login');
   };
 
-  const updateRoleState = (updatedUser) => {
+  const updateUser = (updatedUser) => {
     setUser(updatedUser);
   };
 
+  const refreshUser = async () => {
+    setLoading(true);
+    const refreshed = await fetchUser();
+    return refreshed;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, updateRoleState }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, loading, updateUser, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

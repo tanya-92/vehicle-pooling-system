@@ -1,36 +1,55 @@
 const Ride = require('../models/Ride');
+const Booking = require('../models/Booking');
 const User = require('../models/User');
 
 const createRide = async (req, res) => {
   try {
-    const { pickup_location, drop_location, departure_time, available_seats, price } = req.body;
+    const { pickupLocation, dropLocation, departureTime, availableSeats, pricePerSeat } =
+      req.body;
 
-    // Validate required fields
-    if (!pickup_location || !drop_location || !departure_time || !available_seats || !price) {
+    if (!pickupLocation || !dropLocation || !departureTime || !availableSeats || !pricePerSeat) {
       return res.status(400).json({ message: 'All fields are required.' });
     }
 
-    if (available_seats < 1) {
+    const seats = Number(availableSeats);
+    const price = Number(pricePerSeat);
+
+    if (seats < 1) {
       return res.status(400).json({ message: 'Available seats must be at least 1.' });
     }
 
-    // Check user role from DB to ensure they are still a driver
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user.userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
     }
 
-    if (user.currentRole !== 'driver') {
-      return res.status(403).json({ message: 'Access denied. Only users in the driver role can create rides.' });
+    if (!user.hasCompleteVehicleInfo()) {
+      return res.status(400).json({
+        message: 'Please complete your vehicle information before offering a ride.',
+      });
     }
 
+    if (seats > user.vehicleInfo.seatsAvailable) {
+      return res.status(400).json({
+        message: `You can offer at most ${user.vehicleInfo.seatsAvailable} seats based on your vehicle.`,
+      });
+    }
+
+    const { vehicleType, vehicleModel, vehicleColor, vehicleNumber } = user.vehicleInfo;
+
     const newRide = new Ride({
-      driver_id: req.user.id,
-      pickup_location,
-      drop_location,
-      departure_time,
-      available_seats,
-      price
+      driver: req.user.userId,
+      pickupLocation: pickupLocation.trim(),
+      dropLocation: dropLocation.trim(),
+      departureTime: new Date(departureTime),
+      availableSeats: seats,
+      pricePerSeat: price,
+      vehicleSnapshot: {
+        vehicleType,
+        vehicleModel,
+        vehicleColor,
+        vehicleNumber,
+      },
     });
 
     await newRide.save();
@@ -43,36 +62,28 @@ const createRide = async (req, res) => {
 
 const getAllRides = async (req, res) => {
   try {
-    const { pickup_location, drop_location, date } = req.query;
+    const { pickupLocation, dropLocation, date } = req.query;
+    const filter = { departureTime: { $gte: new Date() } };
 
-    let filter = {};
-
-    if (pickup_location) {
-      filter.pickup_location = { $regex: pickup_location, $options: 'i' };
+    if (pickupLocation) {
+      filter.pickupLocation = { $regex: pickupLocation, $options: 'i' };
     }
 
-    if (drop_location) {
-      filter.drop_location = { $regex: drop_location, $options: 'i' };
+    if (dropLocation) {
+      filter.dropLocation = { $regex: dropLocation, $options: 'i' };
     }
 
     if (date) {
-      // Create a date range for the entire selected day (ignoring time)
       const startDate = new Date(date);
       startDate.setHours(0, 0, 0, 0);
-
       const endDate = new Date(date);
       endDate.setHours(23, 59, 59, 999);
-
-      filter.departure_time = {
-        $gte: startDate,
-        $lte: endDate
-      };
+      filter.departureTime = { $gte: startDate, $lte: endDate };
     }
 
-    // Return filtered rides, sorted by departure_time asc, created_at desc
     const rides = await Ride.find(filter)
-      .populate('driver_id', 'name email') // Populating driver info
-      .sort({ departure_time: 1, created_at: -1 });
+      .populate('driver', 'name email phone avatar vehicleInfo')
+      .sort({ departureTime: 1 });
 
     res.status(200).json({ rides });
   } catch (error) {
@@ -82,11 +93,80 @@ const getAllRides = async (req, res) => {
 
 const getMyRides = async (req, res) => {
   try {
-    // Return rides created by the logged-in driver
-    const rides = await Ride.find({ driver_id: req.user.id })
-      .sort({ departure_time: 1, created_at: -1 });
-
+    const rides = await Ride.find({ driver: req.user.userId }).sort({ departureTime: 1 });
     res.status(200).json({ rides });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const getBookedRides = async (req, res) => {
+  try {
+    const bookings = await Booking.find({ user: req.user.userId, status: { $ne: 'cancelled' } })
+      .populate({
+        path: 'ride',
+        populate: { path: 'driver', select: 'name email phone avatar' },
+      })
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ bookings });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const bookRide = async (req, res) => {
+  try {
+    const { rideId, seatsBooked = 1 } = req.body;
+
+    if (!rideId) {
+      return res.status(400).json({ message: 'Ride ID is required.' });
+    }
+
+    const seats = Number(seatsBooked);
+    if (seats < 1) {
+      return res.status(400).json({ message: 'At least 1 seat is required.' });
+    }
+
+    const ride = await Ride.findById(rideId);
+    if (!ride) {
+      return res.status(404).json({ message: 'Ride not found.' });
+    }
+
+    if (ride.driver.toString() === req.user.userId) {
+      return res.status(400).json({ message: 'You cannot book your own ride.' });
+    }
+
+    if (ride.availableSeats < seats) {
+      return res.status(400).json({ message: 'Not enough seats available.' });
+    }
+
+    const existingBooking = await Booking.findOne({
+      ride: rideId,
+      user: req.user.userId,
+      status: 'confirmed',
+    });
+
+    if (existingBooking) {
+      return res.status(400).json({ message: 'You have already booked this ride.' });
+    }
+
+    const booking = new Booking({
+      ride: rideId,
+      user: req.user.userId,
+      seatsBooked: seats,
+      status: 'confirmed',
+    });
+
+    ride.availableSeats -= seats;
+    await Promise.all([booking.save(), ride.save()]);
+
+    const populated = await Booking.findById(booking._id).populate({
+      path: 'ride',
+      populate: { path: 'driver', select: 'name email phone avatar' },
+    });
+
+    res.status(201).json({ message: 'Ride booked successfully.', booking: populated });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
@@ -95,5 +175,7 @@ const getMyRides = async (req, res) => {
 module.exports = {
   createRide,
   getAllRides,
-  getMyRides
+  getMyRides,
+  getBookedRides,
+  bookRide,
 };

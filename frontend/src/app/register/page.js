@@ -22,10 +22,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await api.post("/auth/register", {
-        ...formData,
-        roles: ["passenger"], // Provide a default role or backend might crash if it expects an array
-      });
+      await api.post("/auth/register", formData);
       localStorage.setItem("otpEmail", formData.email);
       router.push("/verify-otp");
     } catch (err) {

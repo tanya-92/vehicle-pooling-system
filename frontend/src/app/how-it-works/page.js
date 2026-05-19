@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 export default function HowItWorks() {
-  const passengerSteps = [
+  const bookingSteps = [
     {
       icon: Search,
       title: "1. Search for a ride",
@@ -23,16 +23,16 @@ export default function HowItWorks() {
     {
       icon: CheckCircle2,
       title: "2. Book your seat",
-      description: "Review driver profiles, ratings, and ride details. Book your seat instantly or request approval from the driver."
+      description: "Review host profiles, ratings, and ride details. Book your seat instantly."
     },
     {
       icon: Car,
       title: "3. Travel together",
-      description: "Meet your driver at the agreed pickup spot. Enjoy a safe, affordable, and eco-friendly journey to your destination."
+      description: "Meet at the agreed pickup spot. Enjoy a safe, affordable, and eco-friendly journey to your destination."
     }
   ];
 
-  const driverSteps = [
+  const offeringSteps = [
     {
       icon: MapPin,
       title: "1. Offer a ride",
@@ -40,13 +40,13 @@ export default function HowItWorks() {
     },
     {
       icon: MessageCircle,
-      title: "2. Accept passengers",
+      title: "2. Welcome co-riders",
       description: "Review booking requests from verified students. Message them if you need to coordinate pickup details."
     },
     {
       icon: CreditCard,
       title: "3. Drive and save",
-      description: "Pick up your passengers and drop them off. Share the travel costs and save money on your commute."
+      description: "Share the journey and split travel costs. Save money on every commute."
     }
   ];
 
@@ -103,12 +103,12 @@ export default function HowItWorks() {
         {/* Rider Flow */}
         <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-10 mx-auto max-w-[1280px]">
           <div className="mb-12 text-center md:text-left">
-            <h2 className="text-3xl font-bold">For Passengers</h2>
-            <p className="text-gray-600 mt-2">Find a ride in three simple steps.</p>
+            <h2 className="text-3xl font-bold">Book a ride</h2>
+            <p className="text-gray-600 mt-2">Find a seat in three simple steps.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
             <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gray-200 z-0"></div>
-            {passengerSteps.map((step, idx) => {
+            {bookingSteps.map((step, idx) => {
               const Icon = step.icon;
               return (
                 <motion.div
@@ -130,7 +130,7 @@ export default function HowItWorks() {
           </div>
           <div className="mt-12 text-center">
             <Link
-              href="/passenger/search-ride"
+              href="/search"
               className="inline-flex h-14 px-8 items-center justify-center rounded-2xl bg-black text-white font-bold transition hover:bg-[#1f1f1f]"
             >
               Find a Ride Now
@@ -142,12 +142,12 @@ export default function HowItWorks() {
         <section className="bg-white py-16 md:py-24 px-4 sm:px-6 lg:px-10 border-y border-gray-200">
           <div className="mx-auto max-w-[1280px]">
             <div className="mb-12 text-center md:text-left">
-              <h2 className="text-3xl font-bold">For Drivers</h2>
+              <h2 className="text-3xl font-bold">Offer a ride</h2>
               <p className="text-gray-600 mt-2">Share your journey and cut your costs.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
               <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gray-200 z-0"></div>
-              {driverSteps.map((step, idx) => {
+              {offeringSteps.map((step, idx) => {
                 const Icon = step.icon;
                 return (
                   <motion.div
@@ -169,7 +169,7 @@ export default function HowItWorks() {
             </div>
             <div className="mt-12 text-center">
               <Link
-                href="/driver/create-ride"
+                href="/offer"
                 className="inline-flex h-14 px-8 items-center justify-center rounded-2xl border-2 border-black text-black font-bold transition hover:bg-gray-50"
               >
                 Offer a Ride Now

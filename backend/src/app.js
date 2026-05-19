@@ -10,9 +10,11 @@ app.use(express.json());
 // });
 const authRoute = require("./routes/auth.route");
 const rideRoute = require("./routes/ride.route");
+const userRoute = require("./routes/user.route");
 
 app.use("/api/auth", authRoute);
 app.use("/api/rides", rideRoute);
+app.use("/api/user", userRoute);
 
 
 module.exports = app;

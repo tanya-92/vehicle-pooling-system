@@ -104,7 +104,7 @@ function ContactContent() {
               transition={{ delay: 0.1 }}
               className="mt-6 text-lg md:text-xl text-gray-400 max-w-2xl mx-auto"
             >
-              Whether you have a question about your ride, need help setting up your driver profile, or want to report an issue, we're here for you.
+              Whether you have a question about your ride, need help with your vehicle details, or want to report an issue, we're here for you.
             </motion.p>
           </div>
         </section>

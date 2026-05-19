@@ -29,7 +29,7 @@ export default function Login() {
 
   const handleOfferRide = () => {
     if (user) {
-      router.push("/driver/create-ride");
+      router.push("/offer");
     } else {
       setShowLoginModal(true);
     }
@@ -59,7 +59,7 @@ export default function Login() {
     {
       icon: UsersRound,
       title: "Smart Coordination",
-      description: "Auto-match drivers and passengers for efficient and timely pooling.",
+      description: "Auto-match riders going the same way for efficient and timely pooling.",
     },
     {
       icon: Sparkles,
@@ -80,9 +80,9 @@ export default function Login() {
         "Yes. You can request a ride now or schedule one for later based on your preferred pickup time and route.",
     },
     {
-      question: "How does UniPool match riders and drivers?",
+      question: "How does UniPool match riders?",
       answer:
-        "UniPool uses smart coordination to pair nearby verified drivers and passengers with similar routes for efficient pooling.",
+        "UniPool uses smart coordination to pair verified users with similar routes for efficient ride sharing.",
     },
     {
       question: "Is UniPool safe for students and daily commuters?",
